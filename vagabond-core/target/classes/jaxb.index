@@ -1,7 +1,0 @@
-org.outsrcd.vagabond.core.model.Nmaprun
-org.outsrcd.vagabond.core.model.Debugging
-org.outsrcd.vagabond.core.model.Finished
-org.outsrcd.vagabond.core.model.Hosts
-org.outsrcd.vagabond.core.model.Runstats
-org.outsrcd.vagabond.core.model.Scaninfo
-org.outsrcd.vagabond.core.model.Verbose
