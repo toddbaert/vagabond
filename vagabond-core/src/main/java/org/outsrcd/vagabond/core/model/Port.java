@@ -21,6 +21,17 @@ public class Port {
 
   @XmlElement
   private Service service;
+  
+  @XmlElement
+  private Script script;
+
+  public Script getScript() {
+    return script;
+  }
+
+  public void setScript(Script script) {
+    this.script = script;
+  }
 
   public String getProtocol() {
     return protocol;

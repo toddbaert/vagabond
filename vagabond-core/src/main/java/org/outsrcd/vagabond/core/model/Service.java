@@ -10,6 +10,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Service {
   
   @XmlAttribute
+  private String product;
+
+  @XmlAttribute
   private String name;
 
   @XmlAttribute
@@ -17,6 +20,23 @@ public class Service {
 
   @XmlAttribute
   private String conf;
+
+  @XmlAttribute
+  private String cpe;
+
+  @XmlAttribute
+  private String extrainfo;
+
+  @XmlAttribute
+  private String version;
+
+  public String getProduct() {
+    return product;
+  }
+
+  public void setProduct(String product) {
+    this.product = product;
+  }
 
   public String getName() {
     return name;
@@ -42,8 +62,33 @@ public class Service {
     this.conf = conf;
   }
 
+  public String getCpe() {
+    return cpe;
+  }
+
+  public void setCpe(String cpe) {
+    this.cpe = cpe;
+  }
+
+  public String getExtrainfo() {
+    return extrainfo;
+  }
+
+  public void setExtrainfo(String extrainfo) {
+    this.extrainfo = extrainfo;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
   @Override
   public String toString() {
-    return "ClassPojo [name = " + name + ", method = " + method + ", conf = " + conf + "]";
+    return "ClassPojo [product = " + product + ", name = " + name + ", method = " + method + ", conf = " + conf
+        + ", cpe = " + cpe + ", extrainfo = " + extrainfo + ", version = " + version + "]";
   }
 }

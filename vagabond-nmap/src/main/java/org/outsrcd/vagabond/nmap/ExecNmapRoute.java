@@ -7,8 +7,8 @@ import org.apache.camel.component.exec.ExecBinding;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NmapRestRoute extends RouteBuilder {
-  
+public class ExecNmapRoute extends RouteBuilder {
+   
   @Override
   public void configure() throws Exception {       
       
@@ -16,15 +16,17 @@ public class NmapRestRoute extends RouteBuilder {
         .component("jetty")
         .port(1338)
         .contextPath("api");
-      
-      rest("/nmap").get("/{url}")
-        .produces("text/xml")
-        .to("direct:nmap");
+
+      // Jetty interprets URLEncoded '/', so separate the rest of the command from /{netmask}
+      rest("/nmap")
+        .get("/{execString}/{netmask}")
+          .produces("text/xml")
+          .to("direct:nmap");
         
-      // call nmap with with xml output
       from("direct:nmap")
-        .log("${headers.url}")
-        .setHeader(ExecBinding.EXEC_COMMAND_ARGS, simple("--oX - ${headers.url}"))
+        .log("${headers.execString}")
+        // call nmap with with xml output
+        .setHeader(ExecBinding.EXEC_COMMAND_ARGS, simple("${headers.execString}/${headers.netmask}"))
         .to("exec://nmap")
         .process(new Processor() {
 
@@ -32,9 +34,8 @@ public class NmapRestRoute extends RouteBuilder {
           @Override
           public void process(Exchange exchange) throws Exception {
             String result = exchange.getIn().getBody(String.class);
-            //result = result.replace("<!DOCTYPE nmaprun>","");
-            //result = result.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" );
-            result = result.replace("<?xml-stylesheet href=\"file:///usr/bin/../share/nmap/nmap.xsl\" type=\"text/xsl\"?>", "");
+            // regex to remove stylesheet href
+            result = result.replaceAll("\\<\\?xml-stylesheet.*?>", "");
             exchange.getIn().setBody(result);
           }
         });                
