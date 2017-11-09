@@ -1,6 +1,7 @@
 package org.outsrcd.vagabond.core;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.apache.camel.model.rest.RestBindingMode;
@@ -21,7 +22,7 @@ public class NmapRoute extends RouteBuilder {
     JaxbDataFormat jaxb = new JaxbDataFormat("org.outsrcd.vagabond.core.model");
     
       restConfiguration()
-        .component("jetty")
+        .component("undertow")
         .port(1337)
         .contextPath("api")
         .bindingMode(RestBindingMode.json_xml);                 
@@ -40,16 +41,14 @@ public class NmapRoute extends RouteBuilder {
           .type(Nmaprun.class)
           .to("direct:nmap-scan");     
 
-      // Jetty interprets URLEncoded '/', so delimit so just make command/netmask to separate params
       from("direct:nmap-scan")
+        .noStreamCaching()
         .choice().when(simple("${headers.netmask} == null"))
           .setHeader(NETMASK_HEADER, constant("32"))
-        .end()          
-        .setHeader(Exchange.HTTP_PATH, simple("/api/nmap/" + BASE_EXEC_STRING + "${headers.timing-template} ${headers.url}/${headers.netmask}"))
-        .log("path: ${headers.CamelHttpPath}")
+        .end() 
+        .setHeader(Exchange.HTTP_PATH, simple("/api/nmap"))
+        .setHeader(Exchange.REST_HTTP_QUERY, simple("exec=" + BASE_EXEC_STRING + "${headers.timing-template} ${headers.url}/${headers.netmask}"))
         .to("http4://localhost:1338?bridgeEndpoint=true&throwExceptionOnFailure=true")
-        .unmarshal(jaxb)
-        // explicitly set the output body so it can be serialized
-        .process(e -> e.getOut().setBody(e.getIn().getBody(Nmaprun.class)));                         
+        .unmarshal(jaxb);                      
   }
 }
