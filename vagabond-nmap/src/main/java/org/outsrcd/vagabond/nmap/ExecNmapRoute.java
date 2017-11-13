@@ -1,7 +1,5 @@
 package org.outsrcd.vagabond.nmap;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.exec.ExecBinding;
 import org.apache.camel.model.rest.RestParamType;
@@ -24,21 +22,10 @@ public class ExecNmapRoute extends RouteBuilder {
           .to("direct:nmap");
         
       from("direct:nmap")
-        .log("${headers.exec}")
+        .log("exec: ${headers.exec}")
         // call nmap with with xml output
         .setHeader(ExecBinding.EXEC_COMMAND_ARGS, simple("${headers.exec}"))
         .to("exec://nmap")
-        .process(new Processor() {
-
-          // remove stylesheet (for browser testing, otherwise will be cross domain request and fail)
-          @Override
-          public void process(Exchange exchange) throws Exception {
-            String result = exchange.getIn().getBody(String.class);
-            // regex to remove stylesheet href and linebreaks
-            result = result.replaceAll("\\<\\?xml-stylesheet.*?>", "");
-            result = result.replace(System.getProperty("line.separator"), "");
-            exchange.getOut().setBody(result);
-          }
-        });                
+        .convertBodyTo(String.class);               
   }
 }
